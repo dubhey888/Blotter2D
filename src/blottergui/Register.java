@@ -77,13 +77,13 @@ public class Register extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         fn = new javax.swing.JTextField();
-        pw = new javax.swing.JPasswordField();
+        ps = new javax.swing.JPasswordField();
         jPanel4 = new javax.swing.JPanel();
         cancel = new javax.swing.JButton();
         jPanel5 = new javax.swing.JPanel();
@@ -96,125 +96,156 @@ public class Register extends javax.swing.JFrame {
         ln = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
         ut = new javax.swing.JComboBox<>();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jLabel8 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel1.setBackground(new java.awt.Color(51, 51, 51));
+        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
         jPanel1.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jPanel3.setBackground(new java.awt.Color(255, 204, 204));
+        jPanel3.setBackground(new java.awt.Color(51, 51, 51));
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel1.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jLabel1.setText("         WELCOME TO BLOTTER SYSTEM !!!");
-        jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 30, 400, 60));
+        jLabel1.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(204, 204, 204));
+        jLabel1.setText("         WELCOME TO BLOTTER SYSTEM ");
+        jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(-10, 0, 420, 90));
 
-        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 850, 110));
+        jPanel1.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 850, 100));
 
-        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/blottergui/image/s.png"))); // NOI18N
-        jPanel1.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 130, 360, 360));
+        jLabel11.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/bub8.png"))); // NOI18N
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 90, 320, 390));
 
-        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 400, 510));
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 10, 390, 480));
 
         jPanel2.setBackground(new java.awt.Color(153, 153, 255));
+        jPanel2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        jLabel2.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-        jLabel2.setText("Register Here !!!");
-        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 50, 190, 40));
+        jLabel2.setFont(new java.awt.Font("Verdana", 1, 18)); // NOI18N
+        jLabel2.setText("REGISTER HERE");
+        jPanel2.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 30, 190, 50));
 
-        jLabel3.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel3.setText("Email:");
-        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 230, 80, 40));
+        jPanel2.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 210, 80, 40));
 
-        jLabel4.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel4.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel4.setText("Password:");
-        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 330, -1, 40));
+        jPanel2.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 310, -1, 40));
 
-        fn.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        fn.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        fn.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         fn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 fnActionPerformed(evt);
             }
         });
-        jPanel2.add(fn, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 130, 170, 40));
+        jPanel2.add(fn, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 110, 220, 40));
 
-        pw.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-        jPanel2.add(pw, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 330, 170, 40));
+        ps.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        ps.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel2.add(ps, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 310, 220, 40));
 
         jPanel4.setBackground(new java.awt.Color(153, 255, 255));
         jPanel4.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        cancel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        cancel.setBackground(new java.awt.Color(204, 204, 255));
+        cancel.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
         cancel.setText("Back");
+        cancel.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(204, 204, 255)));
         cancel.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 cancelActionPerformed(evt);
             }
         });
-        jPanel4.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 120, 40));
+        jPanel4.add(cancel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 40));
 
-        jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 450, 120, 40));
+        jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 420, 100, 40));
 
         jPanel5.setBackground(new java.awt.Color(153, 255, 255));
         jPanel5.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        Login.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        Login.setBackground(new java.awt.Color(204, 204, 255));
+        Login.setFont(new java.awt.Font("Verdana", 1, 14)); // NOI18N
         Login.setText("Register");
+        Login.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(204, 204, 255)));
         Login.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 LoginActionPerformed(evt);
             }
         });
-        jPanel5.add(Login, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 120, 40));
+        jPanel5.add(Login, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, 100, 40));
 
-        jPanel2.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 450, 120, 40));
+        jPanel2.add(jPanel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 420, 100, 40));
 
-        jLabel5.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel5.setText("Username:");
-        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 280, -1, 40));
+        jPanel2.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 260, -1, 40));
 
-        jLabel6.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel6.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel6.setText("Firstname:");
-        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 130, -1, 40));
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 110, -1, 40));
 
-        jLabel7.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel7.setText("Lastname:");
-        jPanel2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(90, 180, -1, 40));
+        jPanel2.add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 160, -1, 40));
 
-        un.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        un.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        un.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         un.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 unActionPerformed(evt);
             }
         });
-        jPanel2.add(un, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 280, 170, 40));
+        jPanel2.add(un, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 260, 220, 40));
 
-        em.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        em.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        em.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         em.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 emActionPerformed(evt);
             }
         });
-        jPanel2.add(em, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 230, 170, 40));
+        jPanel2.add(em, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 210, 220, 40));
 
-        ln.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+        ln.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        ln.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
         ln.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 lnActionPerformed(evt);
             }
         });
-        jPanel2.add(ln, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 180, 170, 40));
+        jPanel2.add(ln, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 160, 220, 40));
 
-        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
+        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         jLabel9.setText("Account Type:");
-        jPanel2.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 390, -1, -1));
+        jPanel2.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 370, 140, -1));
 
+        ut.setBackground(new java.awt.Color(204, 204, 255));
+        ut.setEditable(true);
+        ut.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
         ut.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Admin", "User" }));
-        jPanel2.add(ut, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 390, 170, -1));
+        ut.setBorder(new javax.swing.border.MatteBorder(null));
+        jPanel2.add(ut, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 360, 220, 40));
 
-        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, 450, 510));
+        jCheckBox1.setBackground(new java.awt.Color(153, 153, 255));
+        jCheckBox1.setText("jCheckBox1");
+        jCheckBox1.setBorder(javax.swing.BorderFactory.createMatteBorder(1, 1, 1, 1, new java.awt.Color(204, 204, 255)));
+        jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox1ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jCheckBox1, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 310, 20, 40));
+
+        jLabel8.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/bub6.png"))); // NOI18N
+        jPanel2.add(jLabel8, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 40, -1, 420));
+
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 10, 430, 480));
 
         pack();
         setLocationRelativeTo(null);
@@ -242,11 +273,11 @@ public class Register extends javax.swing.JFrame {
         this.setVisible(false);    }//GEN-LAST:event_cancelActionPerformed
 
     private void LoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginActionPerformed
-    if(fn.getText().isEmpty() || ln.getText().isEmpty() || em.getText().isEmpty() || un.getText().isEmpty() || pw.getText().isEmpty()) {
+    if(fn.getText().isEmpty() || ln.getText().isEmpty() || em.getText().isEmpty() || un.getText().isEmpty() || ps.getText().isEmpty()) {
     JOptionPane.showMessageDialog(null, "All fields are required!");   
-} else if(pw.getText().length() < 8) {
+} else if(ps.getText().length() < 8) {
     JOptionPane.showMessageDialog(null, "Password character should be 8 and above");
-    pw.setText("");
+    ps.setText("");
 } else if(duplicateCheck()) {
     System.out.println("Duplicate Exist!");
 } else {
@@ -254,7 +285,7 @@ public class Register extends javax.swing.JFrame {
     String pass = null;
     
     try {
-        pass = passwordHasher.hashPassword(pw.getText());
+        pass = passwordHasher.hashPassword(ps.getText());
     } catch (NoSuchAlgorithmException ex) {
         Logger.getLogger(Register.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -273,6 +304,14 @@ public class Register extends javax.swing.JFrame {
 }
 
     }//GEN-LAST:event_LoginActionPerformed
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+       if(jCheckBox1.isSelected()){
+            ps.setEchoChar((char) 0);
+        }else{
+            ps.setEchoChar('*');
+        }
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -314,7 +353,9 @@ public class Register extends javax.swing.JFrame {
     private javax.swing.JButton cancel;
     private javax.swing.JTextField em;
     private javax.swing.JTextField fn;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -329,7 +370,7 @@ public class Register extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     private javax.swing.JTextField ln;
-    private javax.swing.JPasswordField pw;
+    private javax.swing.JPasswordField ps;
     private javax.swing.JTextField un;
     private javax.swing.JComboBox<String> ut;
     // End of variables declaration//GEN-END:variables
