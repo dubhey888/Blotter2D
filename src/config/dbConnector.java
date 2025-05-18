@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 
 public class dbConnector {
 
-    private Connection connect; 
+    public Connection connect; 
     public dbConnector(){
             try{
                 connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/blotter", "root", "");
@@ -19,6 +19,10 @@ public class dbConnector {
                     System.out.println("Can't connect to database: "+ex.getMessage());
             }
         }
+    
+     public Connection getConnection() {
+        return connect;
+    }
     //Function to retrieve data
         public ResultSet getData(String sql) throws SQLException{
             Statement stmt = connect.createStatement();

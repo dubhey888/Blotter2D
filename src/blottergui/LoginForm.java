@@ -12,8 +12,12 @@ import config.Session;
 import config.dbConnector;
 import config.passwordHasher;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 import javax.swing.JOptionPane;
 import user.usersDashboard;
 
@@ -67,6 +71,114 @@ public class LoginForm extends javax.swing.JFrame {
         }
 
     }
+    
+    public String getUserId(String username) {
+       
+        dbConnector dbc = new dbConnector();
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        String userId = null;
+
+        try {
+         
+            String sql = "SELECT u_id FROM tbl_users WHERE u_username = ?";
+            pstmt = dbc.connect.prepareStatement(sql);
+            pstmt.setString(1, username);
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                userId = rs.getString("u_id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (pstmt != null) {
+                try {
+                    pstmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+           
+       
+        }
+        return userId;
+    }
+    public void logEvent(int userId, String username, String userType) {
+    dbConnector dbc = new dbConnector();
+    Connection con = dbc.getConnection();
+    PreparedStatement pstmt = null;
+    String ut = "Active"; // Assuming the status is "Active" once logged in
+
+    try {
+        String sql = "INSERT INTO tbl_log (u_id, u_username, login_time, u_type, log_status) VALUES (?, ?, ?, ?, ?)";
+        pstmt = con.prepareStatement(sql);
+
+        pstmt.setInt(1, userId);
+        pstmt.setString(2, username);
+        pstmt.setTimestamp(3, new Timestamp(new Date().getTime())); // Log the current time
+        pstmt.setString(4, userType);
+        pstmt.setString(5, ut);
+
+        pstmt.executeUpdate();
+        System.out.println("Login log recorded successfully.");
+    } catch (SQLException e) {
+        System.out.println("Error recording log: " + e.getMessage());
+    } finally {
+        try {
+            if (pstmt != null) pstmt.close();
+            if (con != null) con.close();
+        } catch (SQLException e) {
+            System.out.println("Error closing resources: " + e.getMessage());
+        }
+    }
+}
+
+
+     public String getUserTypeFromDatabase(String username) {
+    String type = "";
+    String query = "SELECT u_type FROM tbl_users WHERE LOWER(u_username) = LOWER(?)";
+    
+    // Use an instance of dbConnector to get the connection
+    dbConnector connector = new dbConnector();  // Create instance of dbConnector
+    try (Connection con = connector.getConnection(); 
+         PreparedStatement stmt = con.prepareStatement(query)) {
+        stmt.setString(1, username);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            type = rs.getString("u_type");
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return type;
+}
+      public String getStatusFromDatabase(String username) {
+    String status = "";
+    String query = "SELECT log_status FROM tbl_log WHERE LOWER(u_username) = LOWER(?) ORDER BY login_time DESC LIMIT 1";
+    
+    // Use an instance of dbConnector to get the connection
+    dbConnector connector = new dbConnector();  // Create instance of dbConnector
+    try (Connection con = connector.getConnection(); 
+         PreparedStatement stmt = con.prepareStatement(query)) {
+        stmt.setString(1, username);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) {
+            status = rs.getString("log_status");
+            System.out.println("status: "+status);
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return status;
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -92,6 +204,7 @@ public class LoginForm extends javax.swing.JFrame {
         jPanel5 = new javax.swing.JPanel();
         Login = new javax.swing.JButton();
         Regis = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -173,6 +286,16 @@ public class LoginForm extends javax.swing.JFrame {
         });
         jPanel2.add(Regis, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 450, 390, 30));
 
+        jLabel6.setFont(new java.awt.Font("Century Gothic", 1, 14)); // NOI18N
+        jLabel6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel6.setText("Forgot Password?");
+        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel6MouseClicked(evt);
+            }
+        });
+        jPanel2.add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(190, 320, 150, -1));
+
         getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 0, 440, 510));
 
         pack();
@@ -193,29 +316,78 @@ public class LoginForm extends javax.swing.JFrame {
         this.dispose();        this.dispose();    }//GEN-LAST:event_RegisMouseClicked
 
     private void LoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LoginActionPerformed
-    if(loginAcc(user.getText(),pass.getText())){
-            if(!status.equals("Active")){
-            JOptionPane.showMessageDialog(null, "In-Active Account, Contact the Admin!");
-            }else{
-                if(type.equals("Admin")){
-                JOptionPane.showMessageDialog(null, "Login Success!");
-                admindashboard ads = new admindashboard();
-                ads.setVisible(true);
-                this.dispose(); 
-            }else if(type.equals("User")){
-                JOptionPane.showMessageDialog(null, "Login Success!");
-                usersDashboard usd = new usersDashboard();
-                usd.setVisible(true);
-                this.dispose();     
-           }else{
-            JOptionPane.showMessageDialog(null, "No account type found, Contact the Admin!");                                 
-            }
-         }
-        }else{
-            JOptionPane.showMessageDialog(null, "Invalid Account!");
-           
+    String username = user.getText();  // Get username input
+String password = pass.getText();  // Get password input
+
+dbConnector connector = new dbConnector();
+String status = null;
+String type = null;
+
+if (loginAcc(username, password)) {
+    // Get session info
+    Session sess = Session.getInstance();
+    int userId = sess.getUid();
+
+    try {
+        String query = "SELECT * FROM tbl_users WHERE u_username = ?";
+        PreparedStatement pstmt = connector.getConnection().prepareStatement(query);
+        pstmt.setString(1, username);
+
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            status = rs.getString("u_status");
+            type = rs.getString("u_type");
+        } else {
+            JOptionPane.showMessageDialog(null, "User not found.");
+            return;
+        }
+    } catch (SQLException e) {
+        System.out.println("SQL Exception: " + e.getMessage());
+        return;
+    }
+
+    if (!"Active".equalsIgnoreCase(status)) {
+        JOptionPane.showMessageDialog(null, "Inactive Account, Contact the Admin!");
+        logEvent(userId, username, "Failed - Inactive Account");
+    } else {
+        // Separate redirection logic
+        switch (type) {
+            case "Admin":
+                JOptionPane.showMessageDialog(null, "Login Success! Welcome Admin.");
+                admindashboard adminFrame = new admindashboard();
+                adminFrame.setVisible(true);
+                logEvent(userId, username, "Success - Admin Login");
+                break;
+            case "Police":
+                JOptionPane.showMessageDialog(null, "Login Success! Welcome Police.");
+                admindashboard policeFrame = new admindashboard(); // You need to create this frame
+                policeFrame.setVisible(true);
+                logEvent(userId, username, "Success - Police Login");
+                break;
+            case "User":
+                JOptionPane.showMessageDialog(null, "Login Success! Welcome User.");
+                usersDashboard userFrame = new usersDashboard();
+                userFrame.setVisible(true);
+                logEvent(userId, username, "Success - User Login");
+                break;
+            default:
+                JOptionPane.showMessageDialog(null, "Unknown user type: " + type);
+                break;
+        }
+        this.dispose();
+    }
+} else {
+    JOptionPane.showMessageDialog(null, "Invalid Username or Password!");
+    logEvent(-1, username, "Failed - Invalid Login");
+
 
     }    }//GEN-LAST:event_LoginActionPerformed
+
+    private void jLabel6MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel6MouseClicked
+            new ForgetPassword().setVisible(true); // Open ForgotPassword form
+          dispose();         // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel6MouseClicked
     
     /**
      * @param args the command line arguments
@@ -261,6 +433,7 @@ public class LoginForm extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;

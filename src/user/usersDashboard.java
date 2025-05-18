@@ -8,8 +8,18 @@ package user;
 import admin.*;
 import blottergui.LoginForm;
 import config.Session;
+import config.dbConnector;
 import java.awt.Color;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableModel;
+import net.proteanit.sql.DbUtils;
 
 /**
  *
@@ -22,10 +32,199 @@ public class usersDashboard extends javax.swing.JFrame {
      */
     public usersDashboard() {
         initComponents();
+        loadUserProfile();
+        loadReportsData();
     }
 
     Color navcolor = new Color(255,255,255);
     Color hovercolor = new Color(153,204,255);
+    
+     private void loadUserProfile() {
+    dbConnector dbc = new dbConnector();
+    Session sess = Session.getInstance();
+
+    String query = "SELECT u_image FROM tbl_users WHERE u_id = ?";
+
+    try (Connection conn = dbc.getConnection();
+         PreparedStatement pstmt = conn.prepareStatement(query)) {
+
+        pstmt.setInt(1, sess.getUid());
+        ResultSet rs = pstmt.executeQuery();
+
+        if (rs.next()) {
+            String imagePath = rs.getString("u_image");
+
+            if (imagePath != null && !imagePath.isEmpty()) {
+                ImageIcon icon = new ImageIcon(imagePath);
+                u_image.setIcon(icon);
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace(); // Log the error
+        JOptionPane.showMessageDialog(this, "Error loading profile image: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}   
+     
+       private void logoutUser(String username) {
+    dbConnector connector = new dbConnector();
+    try (Connection con = connector.getConnection()) {
+
+        String updateQuery = "UPDATE tbl_log SET log_status = 'Inactive', logout_time = NOW() " +
+                             "WHERE LOWER(u_username) = LOWER(?) AND log_status = 'Active'";
+
+        try (PreparedStatement stmt = con.prepareStatement(updateQuery)) {
+            System.out.println("Logging out user: " + username); // Debug
+            stmt.setString(1, username);
+            int updatedRows = stmt.executeUpdate();
+
+            if (updatedRows > 0) {
+                JOptionPane.showMessageDialog(null, "User " + username + " has logged out successfully!");
+            } else {
+                JOptionPane.showMessageDialog(null, "No active session found for " + username);
+            }
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Error logging out: " + ex.getMessage());
+    }
+}
+   public void displayReportData() {
+    try {
+        dbConnector dbc = new dbConnector();
+        Session sess = Session.getInstance();
+        int currentUserId = sess.getUid();
+
+        String query = "SELECT report_id, full_name, incident_type, description, location, " +
+                       "CONCAT(date_of_incident, ' ', time_of_incident) AS datetime, status " +
+                       "FROM reports WHERE u_id = ?";
+
+        PreparedStatement pst = dbc.getConnection().prepareStatement(query);
+        pst.setInt(1, currentUserId);
+
+        ResultSet rs = pst.executeQuery();
+        tblblotter.setModel(DbUtils.resultSetToTableModel(rs));
+
+        rs.close();
+        pst.close();
+    } catch (SQLException ex) {
+        System.out.println("Errors: " + ex.getMessage());
+    }
+}
+
+
+
+
+  
+
+    
+ public void tableChanged(TableModelEvent e) {
+    if (e.getType() == TableModelEvent.UPDATE) {
+        int row = e.getFirstRow();
+        int column = e.getColumn();
+
+        if (row == -1 || column == -1) {
+            return;
+        }
+
+        updateReportDatabase(row, column);
+    }
+
+    DefaultTableModel model = (DefaultTableModel) tblblotter.getModel();
+    model.setRowCount(0);
+
+    String sql = "SELECT report_id, full_name, incident_type, description, location, date_of_incident, time_of_incident, status FROM reports WHERE u_id = ?";
+
+    try (Connection connect = new dbConnector().getConnection();
+         PreparedStatement pst = connect.prepareStatement(sql)) {
+
+        Session sess = Session.getInstance();
+        int userId = sess.getUid();
+
+        pst.setInt(1, userId);
+
+        try (ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("report_id"),
+                    rs.getString("full_name"),
+                    rs.getString("incident_type"),
+                    rs.getString("description"),
+                    rs.getString("location"),
+                    rs.getDate("date_of_incident"),
+                    rs.getTime("time_of_incident"),
+                    rs.getString("status")
+                };
+                model.addRow(row);
+            }
+        }
+
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(null, "Database Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+
+
+    
+private void updateReportDatabase(int row, int column) {
+    DefaultTableModel model = (DefaultTableModel) tblblotter.getModel(); 
+    try {
+        int reportId = Integer.parseInt(model.getValueAt(row, 0).toString()); // Assuming ID is column 0
+        String columnName = model.getColumnName(column);
+        Object newValue = model.getValueAt(row, column);
+
+        String sql = "UPDATE reports SET " + columnName + " = ? WHERE report_id = ?";
+        try (Connection conn = new dbConnector().getConnection();
+             PreparedStatement pst = conn.prepareStatement(sql)) {
+
+            pst.setObject(1, newValue);
+            pst.setInt(2, reportId);
+            pst.executeUpdate();
+        }
+
+    } catch (SQLException e) {
+        JOptionPane.showMessageDialog(null, "Update Error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+private void loadReportsData() {
+    DefaultTableModel model = (DefaultTableModel) tblblotter.getModel();
+    model.setRowCount(0);
+
+    String sql = "SELECT report_id, full_name, incident_type, description, location, date_of_incident, time_of_incident, status FROM reports WHERE u_id = ?";
+
+    try (Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/blotter", "root", "");
+         PreparedStatement pst = con.prepareStatement(sql)) {
+
+        Session sess = Session.getInstance();
+        int userId = sess.getUid();
+
+        pst.setInt(1, userId);
+
+        try (ResultSet rs = pst.executeQuery()) {
+            while (rs.next()) {
+                model.addRow(new Object[] {
+                    rs.getInt("report_id"),
+                    rs.getString("full_name"),
+                    rs.getString("incident_type"),
+                    rs.getString("description"),
+                    rs.getString("location"),
+                    rs.getDate("date_of_incident"),
+                    rs.getTime("time_of_incident"),
+                    rs.getString("status")
+                });
+            }
+        }
+    } catch (SQLException ex) {
+        JOptionPane.showMessageDialog(this, "Error loading report data: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
+
+
+
+// Example method to get logged-in user's full name
+
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -46,8 +245,10 @@ public class usersDashboard extends javax.swing.JFrame {
         u_name = new javax.swing.JPanel();
         jLabel10 = new javax.swing.JLabel();
         jPanel4 = new javax.swing.JPanel();
-        jLabel9 = new javax.swing.JLabel();
+        u_image = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblblotter = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -55,6 +256,7 @@ public class usersDashboard extends javax.swing.JFrame {
                 formWindowActivated(evt);
             }
         });
+        getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jPanel1.setBackground(new java.awt.Color(153, 153, 255));
 
@@ -90,6 +292,8 @@ public class usersDashboard extends javax.swing.JFrame {
                 .addContainerGap(33, Short.MAX_VALUE))
         );
 
+        getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 0, -1, -1));
+
         jPanel2.setBackground(new java.awt.Color(255, 204, 204));
         jPanel2.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
@@ -115,6 +319,11 @@ public class usersDashboard extends javax.swing.JFrame {
         jLabel8.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("BLOTTER");
+        jLabel8.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel8MouseClicked(evt);
+            }
+        });
         cars1.add(jLabel8);
         jLabel8.setBounds(0, 0, 190, 40);
 
@@ -142,69 +351,62 @@ public class usersDashboard extends javax.swing.JFrame {
 
         jPanel2.add(u_name, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 242, 180, 36));
 
-        jLabel9.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel9.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-user-50.png"))); // NOI18N
+        u_image.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        u_image.setIcon(new javax.swing.ImageIcon(getClass().getResource("/image/icons8-user-50.png"))); // NOI18N
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
         jPanel4Layout.setHorizontalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel4Layout.createSequentialGroup()
-                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(u_image, javax.swing.GroupLayout.PREFERRED_SIZE, 142, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
             jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+            .addComponent(u_image, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
         );
 
         jPanel2.add(jPanel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(19, 19, -1, -1));
 
+        getContentPane().add(jPanel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 90, 181, 310));
+
         jPanel3.setBackground(new java.awt.Color(255, 255, 255));
         jPanel3.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
+        jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 369, Short.MAX_VALUE)
-        );
+        tblblotter.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
+            },
+            new String [] {
+                "ID", "Full Name", "Incident Type", "Description", "Location", "Date of Incident", "Time of Incident", "Status"
+            }
+        ));
+        jScrollPane1.setViewportView(tblblotter);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 181, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE))))
-        );
+        jPanel3.add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 80, 500, 210));
+
+        getContentPane().add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(188, 90, 530, 310));
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-        LoginForm ads = new LoginForm();
-        JOptionPane.showMessageDialog(null, "Logout Success!");
-        ads.setVisible(true);
-        this.dispose();
+        
+            Session sess = Session.getInstance();
+    if (sess.getUid() != 0) {
+        logoutUser(sess.getName());  // Log out the current user // CLEAR
+    }
+
+    LoginForm loginFrame = new LoginForm();
+    JOptionPane.showMessageDialog(null, "Log-out Success!");
+    loginFrame.setVisible(true);
+    this.dispose();
     }//GEN-LAST:event_jLabel2MouseClicked
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
@@ -243,6 +445,12 @@ public class usersDashboard extends javax.swing.JFrame {
     private void cars1MouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cars1MouseExited
         cars1.setBackground(navcolor);
     }//GEN-LAST:event_cars1MouseExited
+
+    private void jLabel8MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel8MouseClicked
+          UserReportForm urf = new UserReportForm();
+        urf.setVisible(true);
+        this.dispose();       // TODO add your handling code here:
+    }//GEN-LAST:event_jLabel8MouseClicked
 
     /**
      * @param args the command line arguments
@@ -289,11 +497,13 @@ public class usersDashboard extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tblblotter;
+    private javax.swing.JLabel u_image;
     private javax.swing.JPanel u_name;
     // End of variables declaration//GEN-END:variables
 }
